@@ -5,26 +5,26 @@ import { createDiscreteApi } from 'naive-ui'
 const { message } = createDiscreteApi(['message'])
 
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:3000',
-  headers: { 'Content-Type': 'application/json' }
+  baseURL: 'https://nipponkempo-api-individuel.vercel.app',
+  headers: { 'Content-Type': 'application/json' },
 })
 
-// 1) reqeuete interceptor : ajoute l’Authorization
+// 1) reqeuete interceptor : ajoute l'Authorization
 axiosInstance.interceptors.request.use(
-  config => {
+  (config) => {
     const token = localStorage.getItem('token')
     if (token) config.headers.Authorization = `Bearer ${token}`
     return config
   },
-  err => Promise.reject(err)
+  (err) => Promise.reject(err),
 )
 
 // 2) reponse interceptor : gère le token expiré
 axiosInstance.interceptors.response.use(
-  response => response,
-  error => {
+  (response) => response,
+  (error) => {
     const status = error.response?.status
-    const code   = error.response?.data?.code
+    const code = error.response?.data?.code
     if (status === 401 && code === 'FST_JWT_AUTHORIZATION_TOKEN_EXPIRED') {
       // supp le token
       localStorage.removeItem('token')
@@ -34,7 +34,7 @@ axiosInstance.interceptors.response.use(
       window.location.href = '/login'
     }
     return Promise.reject(error)
-  }
+  },
 )
 
 export default axiosInstance
